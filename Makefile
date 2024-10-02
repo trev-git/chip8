@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-Wall -Wextra -I./raylib/include -L./raylib/lib
+CXXFLAGS=-Wall -Wextra -I./raylib/include -L./raylib/lib -std=c++20
 LDFLAGS=-lraylib
 SRCDIR=./src
 SRCS=$(wildcard $(SRCDIR)/*.cpp)
