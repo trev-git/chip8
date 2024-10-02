@@ -1,0 +1,4 @@
+.cache/
+*.ch8
+main
+compile_commands.json
