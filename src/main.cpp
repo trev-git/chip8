@@ -17,11 +17,10 @@ int main(int argc, char **argv)
     }
     InitWindow(WIDTH, HEIGHT, "CHIP-8");
     Chip8 chip(argv[1]);
-    chip.cycle();
     while (!WindowShouldClose())
     {
         BeginDrawing();
-        ClearBackground(RED);
+        chip.cycle();
         EndDrawing();
     }
 

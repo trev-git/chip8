@@ -33,7 +33,7 @@ Chip8::Chip8(const std::string &filename)
                     0xF0, 0x80, 0xF0, 0x80, 0x80, /* F*/
                 };
     this->PC = 0x200;
-
+    this->SP = 0;
     std::ifstream f(filename, std::ios::in | std::ios::binary);
 
     size_t fsize = std::filesystem::file_size(filename);
@@ -58,7 +58,8 @@ void Chip8::cycle()
 {
     uint16_t instruction = TO_LSB16(this->ram[this->PC]);
     uint16_t instruction_type = instruction & 0xf000;
-
+    int reg1 = (instruction & 0x0f00) >> 8;
+    int reg2 = (instruction & 0x00f0) >> 8;
     if (instruction == 0x00e0)
     {
         ClearBackground(BLACK);
@@ -78,23 +79,82 @@ void Chip8::cycle()
     }
     else if (instruction_type == 0x3000)
     {
-        if (this->regs[instruction & 0x0F00] == (instruction & 0x00ff))
+        if (this->regs[reg1] == (instruction & 0xff))
         {
             this->PC += 2;
         }
     }
     else if (instruction_type == 0x4000)
     {
-        if (this->regs[instruction & 0x0f00] != (instruction & 0x00ff))
+        if (this->regs[reg1] != (instruction & 0x00ff))
         {
             this->PC += 2;
         }
     }
     else if (instruction_type == 0x5000)
     {
-        if (this->regs[instruction & 0x0f00] == this->regs[instruction & 0x00f0])
+        if (this->regs[reg1] == this->regs[reg2])
         {
             this->PC += 2;
+        }
+    }
+    else if (instruction_type == 0x6000)
+    {
+        this->regs[reg1] = instruction & 0xff;
+    }
+    else if (instruction_type == 0x7000)
+    {
+        this->regs[reg1] += instruction & 0xff;
+    }
+    else if (instruction_type == 0x8000)
+    {
+        switch (instruction & 0xf)
+        {
+        case 0:
+        {
+            this->regs[reg1] = this->regs[reg2];
+        }
+        case 1:
+        {
+            this->regs[reg1] |= this->regs[reg2];
+        }
+        case 2:
+        {
+            this->regs[reg1] &= this->regs[reg2];
+        }
+        case 3:
+        {
+            this->regs[reg1] ^= this->regs[reg2];
+        }
+        case 4:
+        {
+            this->regs[reg1] += this->regs[reg2];
+            this->regs[15] = this->regs[reg1] < this->regs[reg2];
+        }
+        case 5:
+        {
+            if (this->regs[reg1] > this->regs[reg2])
+                this->regs[15] = 1;
+            else
+                this->regs[15] = 0;
+            this->regs[reg1] -= this->regs[reg2];
+        }
+        case 6:
+        {
+            if (this->regs[reg1] & 0x1)
+                this->regs[15] = 1;
+            else
+                this->regs[15] = 0;
+            this->regs[reg1] >>= 1;
+        }
+        case 7:
+        {
+            if (this->regs[reg2] > this->regs[reg1])
+                this->regs[15] = 1;
+            else
+                this->regs[15] = 0;
+            this->regs[reg1] = this->regs[reg2] - this->regs[reg1];
+        }
         }
     }
 
