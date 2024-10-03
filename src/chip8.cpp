@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
-#include <bit>
+#include <random>
 
 #include "chip8.hpp"
 #include "raylib.h"
@@ -151,7 +151,6 @@ void Chip8::cycle()
             this->regs[15] = this->regs[reg1] & 0x8000 >> 15;
             this->regs[reg1] <<= 1;
         }
-
         }
     }
     else if (instruction_type == 0x9000)
@@ -169,6 +168,75 @@ void Chip8::cycle()
     {
         this->PC = instruction & 0x0fff + this->regs[0];
     }
+    else if (instruction_type == 0xc000)
+    {
+        std::random_device rd;
+        std::mt19937 mt(rd());
+        std::uniform_int_distribution<uint8_t> dist(0, 255);
+        uint8_t rnd_byte = dist(mt);
+        this->regs[reg1] = rnd_byte & (instruction & 0xff);
+    }
+    else if (instruction_type == 0xd000)
+    {
+
+    }
+    else if (instruction_type == 0xe000)
+    {
+
+    }
+    else if (instruction_type == 0xf000)
+    {
+        if ((instruction & 0xff) == 0x07)
+        {
+            this->regs[reg1] = this->DT;
+        }
+        else if ((instruction & 0xff) == 0x0a)
+        {
+
+        }
+        else if ((instruction & 0xff) == 0x15)
+        {
+            this->DT = this->regs[reg1];
+        }
+        else if ((instruction & 0xff) == 0x18)
+        {
+            this->ST = this->regs[reg1];
+        }
+        else if ((instruction & 0xff) == 0x1e)
+        {
+            this->I += this->regs[reg1];
+        }
+        else if ((instruction & 0xff) == 0x29)
+        {
+            this->I = (this->regs[reg1] & 0xf) * 5;
+        }
+        else if ((instruction & 0xff) == 0x33)
+        {
+            this->ram[this->I] = (this->regs[reg1] / 100) % 10;
+            this->ram[this->I+1] = (this->regs[reg1] / 10) % 10;
+            this->ram[this->I+2] = this->regs[reg1] % 10;
+        }
+        else if ((instruction & 0xff) == 0x55)
+        {
+            uint16_t old_I = this->I;
+            for (int i = 0; i <= reg1; i++, I++)
+            {
+                this->ram[I] = this->regs[i];
+            }
+            this->I = old_I;
+        }
+        else if ((instruction & 0xff) == 0x65)
+        {
+            uint16_t old_I = this->I;
+            for (int i = 0; i <= reg1; i++, I++)
+            {
+                this->regs[i] = this->ram[I];
+            }
+            this->I = old_I;
+        }
+    }
 
     this->PC += 2;
+    this->DT--;
+    this->ST--;
 }
