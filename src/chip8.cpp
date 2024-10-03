@@ -133,29 +133,41 @@ void Chip8::cycle()
         }
         case 5:
         {
-            if (this->regs[reg1] > this->regs[reg2])
-                this->regs[15] = 1;
-            else
-                this->regs[15] = 0;
+            this->regs[15] = this->regs[reg1] > this->regs[reg2];
             this->regs[reg1] -= this->regs[reg2];
         }
         case 6:
         {
-            if (this->regs[reg1] & 0x1)
-                this->regs[15] = 1;
-            else
-                this->regs[15] = 0;
+            this->regs[15] = this->regs[reg1] & 0x1;
             this->regs[reg1] >>= 1;
         }
         case 7:
         {
-            if (this->regs[reg2] > this->regs[reg1])
-                this->regs[15] = 1;
-            else
-                this->regs[15] = 0;
+            this->regs[15] = this->regs[reg2] > this->regs[reg1];
             this->regs[reg1] = this->regs[reg2] - this->regs[reg1];
         }
+        case 0xe:
+        {
+            this->regs[15] = this->regs[reg1] & 0x8000 >> 15;
+            this->regs[reg1] <<= 1;
         }
+
+        }
+    }
+    else if (instruction_type == 0x9000)
+    {
+        if (this->regs[reg1] != this->regs[reg2])
+        {
+            this->PC += 2;
+        }
+    }
+    else if (instruction_type == 0xa000)
+    {
+        this->I = instruction & 0x0fff;
+    }
+    else if (instruction_type == 0xb000)
+    {
+        this->PC = instruction & 0x0fff + this->regs[0];
     }
 
     this->PC += 2;
