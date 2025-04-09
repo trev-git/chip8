@@ -1,16 +1,15 @@
 # CHIP8 emulator
 
-A basic CHIP8 emulator. Passes the Does not support sound.
+A basic CHIP8 emulator. Does not support sound. Keyboard supported, but it's sluggish.
 
 ## Building
 
 Build with CMake:
 ```bash
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make
+$ ./build.sh
 ```
+
+The resulting binary is in `./build`.
 
 ## Running
 
